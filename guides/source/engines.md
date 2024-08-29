@@ -561,7 +561,7 @@ inside the class definition in `app/controllers/blorgh/comments_controller.rb`:
 
 ```ruby
 def create
-  @article = Article.find(params[:article_id])
+  @article = Article.find(params.expect(:article_id))
   @comment = @article.comments.create(comment_params)
   flash[:notice] = "Comment has been created!"
   redirect_to articles_path
@@ -569,7 +569,7 @@ end
 
 private
   def comment_params
-    params.require(:comment).permit(:text)
+    params.expect(comment: [:text])
   end
 ```
 

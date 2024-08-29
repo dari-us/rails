@@ -216,12 +216,12 @@ class GroupsController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_group
-      @group = Group.find(params[:id])
+      @group = Group.find(params.expect(:id))
     end
 
     # Only allow a list of trusted parameters through.
     def group_params
-      params.require(:group).permit(:name)
+      params.expect(group: [:name])
     end
 end
 ```
@@ -338,7 +338,7 @@ controller. Here’s an example of `stale?` in use.
 
 ```ruby
 def show
-  @post = Post.find(params[:id])
+  @post = Post.find(params.expect(:id))
 
   if stale?(last_modified: @post.updated_at)
     render json: @post
@@ -357,7 +357,7 @@ cross-client caching in the call to `stale?`:
 
 ```ruby
 def show
-  @post = Post.find(params[:id])
+  @post = Post.find(params.expect(:id))
 
   if stale?(last_modified: @post.updated_at, public: true)
     render json: @post

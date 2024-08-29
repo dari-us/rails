@@ -639,7 +639,7 @@ class ArticlesController < ApplicationController
   end
 
   def show
-    @article = Article.find(params[:id])
+    @article = Article.find(params.expect(:id))
   end
 end
 ```
@@ -782,7 +782,7 @@ class ArticlesController < ApplicationController
   end
 
   def show
-    @article = Article.find(params[:id])
+    @article = Article.find(params.expect(:id))
   end
 
   def new
@@ -908,7 +908,7 @@ class ArticlesController < ApplicationController
   end
 
   def show
-    @article = Article.find(params[:id])
+    @article = Article.find(params.expect(:id))
   end
 
   def new
@@ -1072,7 +1072,7 @@ class ArticlesController < ApplicationController
   end
 
   def show
-    @article = Article.find(params[:id])
+    @article = Article.find(params.expect(:id))
   end
 
   def new
@@ -1090,11 +1090,11 @@ class ArticlesController < ApplicationController
   end
 
   def edit
-    @article = Article.find(params[:id])
+    @article = Article.find(params.expect(:id))
   end
 
   def update
-    @article = Article.find(params[:id])
+    @article = Article.find(params.expect(:id))
 
     if @article.update(article_params)
       redirect_to @article
@@ -1222,7 +1222,7 @@ class ArticlesController < ApplicationController
   end
 
   def show
-    @article = Article.find(params[:id])
+    @article = Article.find(params.expect(:id))
   end
 
   def new
@@ -1240,11 +1240,11 @@ class ArticlesController < ApplicationController
   end
 
   def edit
-    @article = Article.find(params[:id])
+    @article = Article.find(params.expect(:id))
   end
 
   def update
-    @article = Article.find(params[:id])
+    @article = Article.find(params.expect(:id))
 
     if @article.update(article_params)
       redirect_to @article
@@ -1254,7 +1254,7 @@ class ArticlesController < ApplicationController
   end
 
   def destroy
-    @article = Article.find(params[:id])
+    @article = Article.find(params.expect(:id))
     @article.destroy
 
     redirect_to root_path, status: :see_other
@@ -1509,14 +1509,14 @@ Let's wire up the `create` in `app/controllers/comments_controller.rb`:
 ```ruby
 class CommentsController < ApplicationController
   def create
-    @article = Article.find(params[:article_id])
+    @article = Article.find(params.expect(:article_id))
     @comment = @article.comments.create(comment_params)
     redirect_to article_path(@article)
   end
 
   private
     def comment_params
-      params.require(:comment).permit(:commenter, :body)
+      params.expect(comment: [:commenter, :body])
     end
 end
 ```
@@ -1981,21 +1981,21 @@ to our controller (`app/controllers/comments_controller.rb`):
 ```ruby
 class CommentsController < ApplicationController
   def create
-    @article = Article.find(params[:article_id])
+    @article = Article.find(params.expect(:article_id))
     @comment = @article.comments.create(comment_params)
     redirect_to article_path(@article)
   end
 
   def destroy
-    @article = Article.find(params[:article_id])
-    @comment = @article.comments.find(params[:id])
+    @article = Article.find(params.expect(:article_id))
+    @comment = @article.comments.find(params.expect(:id))
     @comment.destroy
     redirect_to article_path(@article), status: :see_other
   end
 
   private
     def comment_params
-      params.require(:comment).permit(:commenter, :body, :status)
+      params.expect(comment: [:commenter, :body, :status])
     end
 end
 ```
@@ -2063,7 +2063,7 @@ class CommentsController < ApplicationController
   http_basic_authenticate_with name: "dhh", password: "secret", only: :destroy
 
   def create
-    @article = Article.find(params[:article_id])
+    @article = Article.find(params.expect(:article_id))
     # ...
   end
 

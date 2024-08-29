@@ -1,3 +1,49 @@
+*   Introduce safer and more explicit params handling methods.
+    - `params.expect` replaces `params.require(:table).permit(:attr)`
+    - `params.expect!` is like `expect` but raises `ActionController::ExpectedParameterMissing` (non-rescued) on malformed requests.
+
+    Each new method ensures params are filtered with consideration for
+    the expected types of values, improving handling of params and avoids
+    errors caused by params tampering.
+
+    ```ruby
+    # If the url is altered to ?person=hacked
+    # Before
+    params.require(:person).permit(:name, :age, pets: [[:name]])
+    # raises NoMethodError, causing a 500 and potential error reporting
+
+    # After
+    params.expect(person: [:name, :age, pets: [[:name]]])
+    # raises ActionController::ParameterMissing, correctly returning a 400 error
+    ```
+
+    You may also notice the new double array `[[:name]]`. In order to
+    declare when a param is expected to be an array of params hashes,
+    this new double array syntax is used. The new methods expect arrays
+    to be declared this way.
+
+    In order to preserve compatibility, `permit` does not adopt the new
+    double array syntax and is therefore more permissive about wrong
+    types. Using `expect` or `expect!` everywhere is recommended.
+
+    We suggest replacing `params.require(:person).permit(:name, :age)`
+    with the direct replacement `params.expect(person: [:name, :age])`
+    to prevent external users from manipulating params to trigger 500
+    errors when the correct response is a 400 error.
+
+    Usage of `params.require(:id)` should likewise be replaced with `params.expect(:id)` which is designed to ensure that `params[:id]`
+    is a scalar and not an array or hash.
+
+    ```ruby
+    # Before
+    User.find(params.require(:id)) # allows an array, altering behavior
+
+    # After
+    User.find(params.expect(:id)) # expect only returns non-blank permitted scalars (excludes Hash, Array, nil, "", etc)
+    ```
+
+    *Martin Emde*
+
 *   Fix `Request#raw_post` raising `NoMethodError` when `rack.input` is `nil`.
 
     *Hartley McGuire*

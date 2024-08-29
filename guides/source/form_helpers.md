@@ -1235,7 +1235,7 @@ end
 
 private
   def person_params
-    params.require(:person).permit(:name, addresses_attributes: [:id, :kind, :street])
+    params.expect(person: [:name, addresses_attributes: [[:id, :kind, :street]]])
   end
 ```
 
@@ -1281,8 +1281,7 @@ the `_destroy` field:
 
 ```ruby
 def person_params
-  params.require(:person).
-    permit(:name, addresses_attributes: [:id, :kind, :street, :_destroy])
+  params.expect(person: [:name, addresses_attributes: [[:id, :kind, :street, :_destroy]]])
 end
 ```
 
