@@ -41,6 +41,10 @@ module ActionController
     end
   end
 
+  # Raised only for `#expect!` when a required parameter is missing.
+  # Do not add this class to `ActionDispatch::ExceptionWrapper.rescue_responses`!
+  # The intended use for `expect!` are internal and private APIs where you control both sides and
+  # trigger a 500 error so it gets picked up by your error tracking software in a meaningful way.
   class ExpectedParameterMissing < ParameterMissing; end
 
   # Raised when a supplied parameter is not expected and
@@ -737,7 +741,7 @@ module ActionController
     # As the examples show, `expect` requires the `:user` key, and any root keys
     # similarl to the `.require.permit` pattern. If multiple root keys are
     # expected, they will all be required.
-
+    #
     #    params = ActionController::Parameters.new(name: "Martin", pies: [{ type: "dessert", flavor: "pumpkin"}])
     #    name, pies = params.expect(:name, pies: [:type, :flavor])
     #    name # => "Martin"
@@ -788,8 +792,11 @@ module ActionController
       values.size == 1 ? values.first : values
     end
 
-    # Same as expect, but raises non-rescued ExpectedParameterMissing, ignoring
-    # ActionController::Parameters.action_on_unpermitted_parameters
+    # Same as expect, but raises non-rescued `ActionController::ExpectedParameterMissing`,
+    # which results in a 500 status code.
+    #
+    # This is useful for private and internal APIs where you control both client and server
+    # to detect malformed parameters sent by your client app.
     def expect!(*filters)
       expect(*filters)
     rescue ParameterMissing => e
